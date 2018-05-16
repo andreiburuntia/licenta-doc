@@ -9,6 +9,7 @@
 %code
 \usepackage{listings}
 \usepackage{color}
+\usepackage{inconsolata}
  
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -18,11 +19,10 @@
  
 \lstset{language=Go,
     backgroundcolor=\color{backcolour},  
-    basicstyle=\ttfamily\scriptsize,
+    basicstyle=\ttfamily\footnotesize,
     keywordstyle=\color{blue}\ttfamily,
     stringstyle=\color{red}\ttfamily,
     commentstyle=\color{comments}\ttfamily,
-    basicstyle=\footnotesize,
     breakatwhitespace=false,         
     breaklines=true,                 
     captionpos=b,                    
@@ -379,7 +379,7 @@ type Message_s_t struct{
 	\2 evenimentul este procesat pe baza dictionarelor, intregii fiind inlocuiti cu stringuri
 	\2 dupa prelucrare, evenimentul este serializat ca JSON si este trimis catre Elasticsearch
 
-\begin{lstlisting}[language=C++,caption={functia pentru procesarea mesajelor - golang},captionpos=b]
+\begin{lstlisting}[caption={functia pentru procesarea mesajelor - golang},captionpos=b]
 func processMsg(msg string) Message_s_t{
 	var maps = cups_itf.Maps
 	fmt.Println(maps["Duplex"]["0"])
@@ -421,7 +421,7 @@ Elasticsearch este un motor de cautare bazat pe Apache Lucene. Ofer clienti disp
 			\subsubsection{Kibana}
 Kibana este un plugin open source pentru vizualizare de data, care pune la dispozitie capabilitati de vizualizare ale elementelor indexate intr-un cluster Elasticsearch. Un utilizator poate  construi diferite tipuri de grafice bazate pe datele indexate de Elasticsearch, iar pe baza acestor grafice se pot construi dashboard-uri configurabile. Kibana preia datele indexat de la Elastisearch si le foloseste la generarea de grafice si vizualizari relevante pentru utilizator.
 
-Atat Elasticsearch, cat si Kibana sunt hostate pe o masina (Debian) in cloud pe platforma Scaleway. Masina are o configuratie minimala, stack-ul fiind unul robust si eficient nu are nevoie de multe resurse. Administrarea masinii se face strict prin SSH, iar interfata web Kibana este expusa spre exterior. Prin intermediul aplicatiei web se face si configurarea graficelor si dashboard-ului Kibana.
+Atat Elasticsearch, cat si Kibana sunt hostate pe o masina (Debian) in cloud pe platforma Scaleway. Masina are o configuratie minimala, stack-ul fiind unul robust si eficient nu are nevoie de multe resurse. Administrarea masinii se face strict prin SSH, iar interfata web Kibana este expusa spre exterior. Prin intermediul aplicatiei web se face si configurarea graficelor si dashboard-ului Kibana. Pe masina host este instalat nginx care redirecteaza orice acces HTTP catre portul Kibana (9300).
 	\section{Comunicarea între module}
 
 \chapter{Rezultate}
@@ -443,6 +443,7 @@ Atat Elasticsearch, cat si Kibana sunt hostate pe o masina (Debian) in cloud pe 
 \item Elastic stack - ELK stack - 
 \item Kibana - 
 \item Elasticsearch - 
+\item nginx -
 \end{itemize}
 
 \chapter{Referințe}
