@@ -1,4 +1,4 @@
-\documentclass[12pt]{report}
+\documentclass[a4paper, 12pt, twoside]{report}
 \usepackage[a4paper,left=25.4mm, right=25.4mm, top=25.4mm, bottom=25.4mm]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -61,15 +61,18 @@
 
 \graphicspath{ {img/} }
 \title{
-	{Thesis Title}\\
+	{Sistem de colectare și analiză a datelor din procesul de tipărire}\\
 	{\large Universitatea Politehnica Timișoara}\\
 	{\includegraphics[width=50mm]{upt_logo.png}}
 }
 \author{Andrei Buruntia \\ andreiburuntia@gmail.com\\[1cm]{ Advisor: conf. dr. ing. Dan Cosma}}
-\date{20-02-2018}
+\date{20-05-2018}
 \begin{document}
 
 \maketitle
+
+\newpage\null\thispagestyle{empty}\newpage
+
 \chapter*{Abstract}
 În zilele noastre există o multitudine de imprimante și soluții de printing disponibile, fiecare cu interfața și setul ei de funcționalități. Această teză urmărește construirea unei platforme universale care să permită ascunderea imprimantelor după un strat de abstractizare suplimentar, oferind o singură interfață și posibilitatea de a furniza unei companii de printing date relevante sub formă de grafice.
 
@@ -83,8 +86,8 @@ Lucrarea arată potențialul folosirii tehnologiilor și sistemelor open-source 
 
 \newpage\null\thispagestyle{empty}\newpage
 
-\chapter*{Declarație pe răspundere}
-Subsemnatul Buruntia Andrei-Cristian, legitimat cu CI seria TZ nr. 080265, CNP 1950819165656, autorul lucrarii TITLU, elaborată în vederea susținerii examenului de finalizare a studiilor de licență organizat de către Facultatea de Automatică și Calculatoare din cadrul Universităţii Politehnica Timişoara, sesiunea iunie a anului universitar 2018, luând în considerare conţinutul art. 39 din RODPI – UPT, declar pe proprie răspundere, că această lucrare este rezultatul propriei activităţi intelectuale, nu conţine porţiuni plagiate, iar sursele bibliografice au fost folosite cu respectarea legislaţiei române şi a convenţiilor internaţionale privind drepturile de autor.
+\chapter*{Declarație pe propria răspundere}
+Subsemnatul Buruntia Andrei-Cristian, legitimat cu CI seria TZ nr. 080265, CNP 1950819165656, autorul lucrarii "Sistem de colectare și analiză a datelor din procesul de tipărire", elaborată în vederea susținerii examenului de finalizare a studiilor de licență organizat de către Facultatea de Automatică și Calculatoare din cadrul Universităţii Politehnica Timişoara, sesiunea iunie a anului universitar 2018, luând în considerare conţinutul art. 39 din RODPI – UPT, declar pe proprie răspundere, că această lucrare este rezultatul propriei activităţi intelectuale, nu conţine porţiuni plagiate, iar sursele bibliografice au fost folosite cu respectarea legislaţiei române şi a convenţiilor internaţionale privind drepturile de autor.
 
 \bigskip
 
@@ -97,14 +100,14 @@ Semnătură & Dată\\[8ex]% adds space between the two sets of signatures
 
 \tableofcontents
 
-\newpage
+\newpage\null\thispagestyle{empty}\newpage
 
 \chapter{Introducere}
 
 	\section{Context și motivație}
 Océ, compania în care lucrez, activează în domeniul de printing, fiind subsidiar Canon. I companie se pune problema analizei și colectării datelor din procesul de imprimare. La propunerea companiei, am încercat sa abordez aceasta problema. Mai jos este prezentata mai pe larg problema, iar lucrarea urmărește propunerea unei idei de implementare a unu sistem care sa o rezolve. I aceasta documentație se va încerca detalierea asupra anumitor aspecte ale lucrării: dificultățile întâlnite, probleme de comunicare, constraint-uri de orice fel, etc.
 
-	\section[Problema]{Problema \\ {\large Analiza si colectare de statistici despre procesul de imprimare}}
+	\section[Problema]{Problema \\ {\large Analiza și colectare de statistici despre procesul de imprimare}}
 
 Pentru a putea optimiza costurile și procedeele de tipărire în cazul imprimantelor de format mare se dorește analiza și colectarea de statistici referitoare la: 
 \begin{enumerate}
@@ -127,7 +130,65 @@ Implementarea soluției trebuie sa respecte următoarele cerințe:
 \item Sa anonimizeze informatiile confidentiale
 \end{enumerate}
 
-\chapter{Fundamentare teoretică}
+	\section{Analiza studiului actual în domeniul problemei}
+În prezent, nu există o modalitate non-invazivă de a colecta date de natură non-personală. Există, insă, sistemul CUPS, care dispune de tot ce este nevoie in proiect înafară de capabilitățile de coloctare de date. Există, de asemenea, unelte pentru agregarea si vizualizarea diferitor tipuri de date.
+
+\chapter{Fundamente teoretice}
+
+	\section{Arhitectura client-server}
+Modelul client-server este o structură pentru aplicațiile distribuite care împarte load-ul între furnizori de resurse sau servicii (servere) și clienți, care au nevoie de serviciile sau resursele respective. În general, comunicarea între servere și clienții se realizeaza printr-o rețea de calculatoare sau pe hardware separat, dar nu este neîntalnit ca serverul si clientul sa fie pe aceeași mașină. Un server rulează unul sau mai multe programe care împart resursele clienților. Un client nu își expune resursele, dar cere resurse de la server. Clienții inițiază în general conexiunea sau sesiunea si asteapta ca cererile lor sa fie abordate și să primească răspuns de la server. Orice sistem care oferă facilități de network printing folosește arhitectura client-server.
+
+\begin{figure}[h]
+		\centering
+			{\includegraphics[width=120mm]{arch.png}}
+		\caption{Arhitectură client-server}
+\end{figure}
+
+Caracteristica client-server descrie o relație de cooperare in aplicație. Componenta server expune o funcție sau un serviciu pentru unul sau mai mulți clienți. Clientul trebuie doar sa ințeleagă respunsul bazându-se pe un protocol prestabilit.
+
+	\section{Sisteme distribuite}
+Scopul programării distribuite este împarțirea funcționalitaților sau a modulelor spre a fi rulate in locații diferite. In proiectarea unui sistem distribuit trebuie tratate cazurile în care o componenta cade. Structura sistemului nu se cunoaste în avans, la fel ca infrastructura de comunicație. Orice componentă/calculator are doar o viziune limitata a întregului sistem. Modelul client-server este o implementare specifică a acestei paradigme.
+
+	\section{Considerații IPC}
+Inter-process communication se referă la mecanismele unui sistem de operare prin care pune la dispoziție proceselor pe care le găzduiește modalități de a comunica unele cu altele și de a trimite date de la unele la altele. În mod normal, aplicațiile pot folosi IPC sub forma modelului client-server, clientul cerând și serverul furnizând date. Multe aplicații pot fi și client și server, așa cum este de multe ori cazul in distributed computing. Metodele de implementare ale IPC sunt împarțite pe categorii bazate pe cerințe software (performanță sau modularitate), circumstanțe de sistem, etc. IPC este foarte important pentru procesul de proiectare a microkernelelor și nanokernlelelor. Microkernele reduc numarul de funcționalități pe care le expune kernelul. Acele funcționalități sunt obținute ulterior via IPC. Un microkernel folosește IPC mult mai intens față de un kernel monolitic convențional.
+
+Există numeroase abordari și implementări pentru IPC:
+\begin{itemize}
+\item fișier pe disc
+\item semnal
+\item socket
+\item Unix domain socket
+\item coadă de mesaje
+\item pipe
+\item named pipe sau FIFO
+\item etc
+\end{itemize}
+
+Sistemele POSIX, dar și Windows, includ majoritatea acestor mecanisme.
+
+	\section{Nucleul sistemului de operare}
+Kernelul este programul care stă la baza sistemului de operare și are control asupra intregului sistem. La majoritatea sistemelor de operare, nucleul este printre primele programe care se încarcă in memorie la start-up, imediat după bootloader. Este responsabil cu I/O, traducerea stream-urilor de date de la aplicații in instrucțiuni pentru procesor, arbitrează procese, alocă spațiu pentru utilizator și alte funcții de bază ale sistemului de operare. În mod normal, nucleul se incarcă intr-o zona specială și separată de memorie, protejată de accese ale aplicațiilor sau a componentelor mai puțin critice ale sistemului. Toate lucrurile critice sistemului au loc in kernel space, iar programele non-critice au loc in user space. Separând astfel user data de kernel data, se previne interferența și instabilitatea. Interfața nucleului este un nivel de abstractizare low-level. Apelurile de la procese către nucleu se numesc apeluri de sistem sau system calls.
+
+\begin{figure}[h]
+		\centering
+			{\includegraphics[width=100mm]{kernel.png}}
+		\caption{Diagramă care ilustrează locul nucleului in stiva sistemului}
+\end{figure}
+
+Există diferite abordări de proiectare a nucleelor, printre care monolithic kernel, care ruleaza toate instrucțiunile de sistem in același spațiu de adresare sau microkernel, mai modular, care rulează multe din procesele critice in user space.
+
+Scopul principal al nucleului este, deci, de a partaja resursele sistemului, incluzând:
+\begin{itemize}
+\item CPU
+\item RAM
+\item dispozitive I/O
+\item management resurse
+\item management memorie
+\item management dispozitive
+\item apeluri sistem
+\end{itemize}
+
+Nucleul Linux, folosit in proiect, este unul de tip monolitic, fiind extrem de rapid si versatil. Proiectarea unui kernel fiabil s-a dovedit dificilă și adesea foarte costisitoare ca timp. Folosirea unui kernel consacrat și fiabil și construirea sistemului peste acesta reprezintă un compromis optim de timp și resurse. Nucleul Linux este cel mai popular kernel monolitic Unix-like și pe baza lui s-a construit familia de sisteme de operare GNU/Linux, care conține mii de distribuții. Datorită capabilităților sale multi-CPU, nucleul Linux și-a consolidat poziția pe piața server si enterprise.
 
 
 \chapter{Specificațiile proiectului}
@@ -736,6 +797,8 @@ Scalabilitatea proiectul este, în teorie, mărginita doar de capabilitățile d
 \item "What Is Linux: An Overview of the Linux Operating System". Linux Foundation. April 3, 2009. Archived from the original on August 13, 2011. Retrieved August 15, 2011.
 \item Tung, Liam (July 27, 2017). "Raspberry Pi: 14 million sold, 10 million made in the UK | ZDNet". ZDNet.
 \item Upton, Eben (14 March 2018). "Raspberry Pi 3 Model B+ on Sale at USD35". Raspberry Pi Blog. Raspberry Pi .
+\item  "Distributed Application Architecture" (PDF). Sun Microsystem. Archived from the original (PDF) on 6 April 2011. Retrieved 2009-06-16.
+\item Benatallah, B.; Casati, F.; Toumani, F. (2004). "Web service conversation modeling: A cornerstone for e-business automation". IEEE Internet Computing. 8: 46. doi:10.1109/MIC.2004.1260703.
 \end{itemize}
 \clearpage
 
