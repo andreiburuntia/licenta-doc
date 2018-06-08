@@ -62,10 +62,11 @@
 \graphicspath{ {img/} }
 \title{
 	{Sistem de colectare și analiză a datelor din procesul de tipărire}\\
+	{\large Lucrare de licență}\\
 	{\large Universitatea Politehnica Timișoara}\\
 	{\includegraphics[width=50mm]{upt_logo.png}}
 }
-\author{Andrei Buruntia \\ andreiburuntia@gmail.com\\[1cm]{ Advisor: conf. dr. ing. Dan Cosma}}
+\author{Andrei Buruntia \\ andreiburuntia@gmail.com\\[1cm]{ Coordonator: conf. dr. ing. Dan Cosma}}
 \date{20-05-2018}
 \begin{document}
 
@@ -93,7 +94,7 @@ Subsemnatul Buruntia Andrei-Cristian, legitimat cu CI seria TZ nr. 080265, CNP 1
 
 \noindent\begin{tabular}{ll}
 \makebox[2.5in]{\hrulefill} & \makebox[2.5in]{\hrulefill}\\
-Semnătură & Dată\\[8ex]% adds space between the two sets of signatures
+Semnătura & Data\\[8ex]% adds space between the two sets of signatures
 \end{tabular}
 
 \newpage\null\thispagestyle{empty}\newpage
@@ -190,6 +191,17 @@ Scopul principal al nucleului este, deci, de a partaja resursele sistemului, inc
 
 Nucleul Linux, folosit in proiect, este unul de tip monolitic, fiind extrem de rapid si versatil. Proiectarea unui kernel fiabil s-a dovedit dificilă și adesea foarte costisitoare ca timp. Folosirea unui kernel consacrat și fiabil și construirea sistemului peste acesta reprezintă un compromis optim de timp și resurse. Nucleul Linux este cel mai popular kernel monolitic Unix-like și pe baza lui s-a construit familia de sisteme de operare GNU/Linux, care conține mii de distribuții. Datorită capabilităților sale multi-CPU, nucleul Linux și-a consolidat poziția pe piața server si enterprise.
 
+Pentru compilarea și configurarea sistemului de operare gazdă pentru acest proiect s-a folosit Buildroot. Detalii despre acest proces, dar și despre sistemul de operare in sine se va elabora la capitolul de implementare, mai exact la secțiunea 4.2.1.
+
+
+	\section{Grafică raster}
+In grafica pe calculator, bitmap-urile sau graficile rasterizate sunt reprezentări grafice sub forma unor matrici de puncte, vizibile pe un monitor, imprimabile sau vizibile pe alte medii de vizualizare. Există multe formate pentru stocarea fișierelor de acest fel.
+
+Un bitmap (single-bit raster) corespunde bit cu bit unei imagini afișate pe ecran. O imagine raster este, de regulă, caracterizată de lungime, lățime și înalțime/adâncime a pixelilor, adică numarul de biți per pixel (adesea întalnită în literatură ca și color depth).
+
+În industria de printing, graficile raster sunt cunoscut ca "contones" (de la "continuous tones"). Opusul contones sunt așa numitele "line works", implementate ca grafici vectorizate în sistemele digitale. Imaginile vectorizate se pot rasteriza și viceversa folosind software. În ambele cazuri se pierde o cantitate mică de informație.
+
+Imaginile raster sunt dependente de rezoluție, deci nu se pot scala in sus fară să se piardă calitatea aparentă. În contrast, imaginile vectorizate se pot scala atât cât pot fi randate de dispozitiv. Uzurile imaginilor rasterizate includ fotografii și alte aplicații in domenii practice, în timp ce imaginile vectorizate se folosesc la design grafic si typesetting.
 
 \chapter{Specificațiile proiectului}
 	\section{Placa de dezvoltare gazdă - Raspberry Pi 3}
@@ -262,8 +274,8 @@ Nucleul Linux este un nucleu monolitic, adică lucrează în întregime separat 
 \item suport pentru sistem multi-procesor
 \end{itemize}
 
-Distribuția a fost compilata pentru arhitectura ARM, specifica procesorului Broadcom BCM2837 cu 4 nuclee ARM Cortex-A53, spre a fi instalata pe o placa Raspberry Pi 3. Procesorul și memoria de 1GB ale plăcii sunt mai mult decât suficiente pentru a rula sistemul de operare și componentele menționate mai sus. Versiunea de kernel folosita este 4.14, cu niște patch-uri suplimentare care sa permită folosirea modulelor Bluetooth și Wi-Fi ale plăcii. În testele efectuate, sistemul de operare este perfect stabil și consuma foarte puține resurse comparativ cu o distribuție de Linux full blown. Compilarea completa a sistemului de operare se face, pe o mașina relativ veche, în sub 25 minute. Nucleul linux este principala componenta a sistemului de operare GNU/Linux. Pentru use-case-ul de fata, am ales sa nu instalez un desktop environment sau interfața grafica pe sistem, pe considerente de reducere a resurselor consumate.
-Distribuția de Linux folosita a fost compilata special pentru acest uz, drept urmare majoritatea funcțiilor au fost eliminate, rămânând doar cu cele strict esențiale pentru funcționarea CUPS:
+Distribuția a fost compilata pentru arhitectura ARM, specifica procesorului Broadcom BCM2837 cu 4 nuclee ARM Cortex-A53, spre a fi instalata pe o placa Raspberry Pi 3. Procesorul și memoria de 1GB ale plăcii sunt mai mult decât suficiente pentru a rula sistemul de operare și componentele menționate mai sus. Versiunea de kernel folosita este 4.14, cu niște patch-uri suplimentare care sa permită folosirea modulelor Bluetooth și Wi-Fi ale plăcii. În testele efectuate, sistemul de operare este perfect stabil și consuma foarte puține resurse comparativ cu o distribuție de Linux full blown. Compilarea completa a sistemului de operare se face, pe o mașina relativ veche, în sub 25 minute. Nucleul linux este principala componenta a sistemului de operare GNU/Linux. Pentru use-case-ul de față, am ales sa nu instalez un desktop environment sau interfața grafica pe sistem, pe considerente de reducere a resurselor consumate.
+Distribuția de Linux folosită a fost compilată special pentru acest uz, drept urmare majoritatea funcțiilor au fost eliminate, rămânând doar cu cele strict esențiale pentru funcționarea CUPS și transmiterea datelor:
 \begin{itemize}
 \item facilitati elementare de networking - Avahi
 \item o selectie minimala de unelte si compilatoare - clang, golang
@@ -271,9 +283,12 @@ Distribuția de Linux folosita a fost compilata special pentru acest uz, drept u
 \item functionalitate de remote access - SSH
 \end{itemize}
 
-Pentru compilare și aplicare de patch-uri a fost folosit Buildroot - o unealta care automatizează procesul de building al unui mediu Linux complet și bootabil, folosind cross-compilation pentru a putea servi multiple platforme. Buildroot își poate build-ui propriul toolchain, crea un root file system, compila o imagine de Linux kernel și genera un boot loader pentru sistemul dorit. Acesta funcționează pe baza unor fișiere de configurații, numite defconfigs, care conțin informații relevante pentru procesul de build (versiune de kernel, arhitectura, target file system, etc.). Sunt suportate mai multe biblioteci de C, printre care GNU C Library, uClibc și musl. Intern, Buildroot folosește Kconfig pentru sistemul de configurație, acesta oferind facilități precum o interfață cu meniu, ocuparea de dependente, opțiunea de 'Help' contextual. Întregul proces de build se construiește în jurul pachetelor descărcate automate în funcție de defconfig. Aceste pachete pot include aplicații, utilitati, biblioteci, etc. Rezultatul final este un root file system care poate fi copiat pe un mediu bootabil și folosit as-is. Buildroot face tot procesul de compilare, build și deployment ușor de înțeles și accesibil oricui.
+Pentru compilare și aplicare de patch-uri a fost folosit {\textbf{Buildroot}} - o unealta care automatizează procesul de building al unui mediu Linux complet și bootabil, folosind cross-compilation pentru a putea servi multiple platforme. Buildroot își poate build-ui propriul toolchain, crea un root file system, compila o imagine de Linux kernel și genera un boot loader pentru sistemul dorit. Acesta funcționează pe baza unor fișiere de configurații, numite defconfigs, care conțin informații relevante pentru procesul de build (versiune de kernel, arhitectura, target file system, etc.). Sunt suportate mai multe biblioteci de C, printre care GNU C Library, uClibc și musl. Intern, Buildroot folosește Kconfig pentru sistemul de configurație, acesta oferind facilități precum o interfață cu meniu, ocuparea de dependente, opțiunea de 'Help' contextual. Întregul proces de build se construiește în jurul pachetelor descărcate automate în funcție de defconfig. Aceste pachete pot include aplicații, utilitati, biblioteci, etc. Rezultatul final este un root file system care poate fi copiat pe un mediu bootabil și folosit as-is. Buildroot face tot procesul de compilare, build și deployment ușor de înțeles și accesibil oricui.
 
 Pe parcurs, a apărut problematica alegerii unui sistem de init. Buildroot pune la dispoziție implicit BusyBox - o implementare a unui program rudimentar de init, suficient pentru majoritatea aplicațiilor.
+
+Cu toate că inițial s-a dorit folosirea CUPS pe un Raspberry Pi cu un sistem de operare special conceput, acest lucru a devenit ulterior opțional, datorită ușurinței de instalare pentru testarea sistemului pe un calculator normal. Majoritatea testelor și dezvoltării s-au efectuat  pe un sistem cu ahitectură x64 sub o distribuție de Debian Jessie. Pentru instalarea pe un sistem de operare customizat este nevoie de compilare specială pentru ahitectura respectivă. O alternativă mai simplă este folosirea unei distribuții Debian-based, adică Raspbian pentru Raspberry Pi.
+
 		\subsection[CUPS]{CUPS\\ {\normalsize Common UNIX Printing System}}
 Apărut in 1999, CUPS este un sistem modular de printing open-source pentru sistemele de operare Unix-like. Acesta permite unui calculator sa se comporte ca un print server, devenind un host care accepta job-uri de la clienți, le procesează și le trimite către imprimante.
 CUPS este format dintr-un spooler, un scheduler, un sistem de filtre care transforma datele dintr-un format în altul, și un sistem de backend-uri care realizează comunicarea cu imprimantele.
@@ -293,12 +308,8 @@ Inițial, am încercat modificare scheduler-ului, mai exact a modulului de loggi
 
 			\subsubsection{Backend-urile CUPS}
 Backend-urile CUPS sunt folosite pentru a trimite datele către imprimante. CUPS pune la dispoziție multe backend-uri: paralel, serial, USB, cups-pdf, PDF virtual printing, JetDirect, LPD, SMB, etc.
-		
-		
-		\subsection[Elastic Stack]{Elastic Stack\\ {\normalsize Beater - Elasticsearch - Kibana}}
-Elastic Stack este o stiva de aplicații care permite extragerea, procesarea și vizualizarea datelor. În majoritatea cazurilor, acesta este găsit sub numele de ELK Stack (Elasticsearch - Logstash - Kibana). Pentru aceasta teza nu a fost folosit Logstash, fiind înlocuit cu un Elastic Beater ca unealta de colectare a datelor. Un Beat implementează interfața Beater și aduna date spre a le trimite către Kibana sau, în cazul de fata, Elasticsearch.
 
-
+		
 			\subsubsection{Beat}
 Beat-urile au fost adăugate recent la stack-ul ELK. Un Beat are responsabilitatea sa colecteze date și sa le trimită spre procesare sau vizualizare. Acesta trebuie sa implementeze în Golang o interfață numita Beater interface, care conține metode de Start, Run și Stop. Aceasta lucrare folosește un Beat pentru a primi date de la raster-ul, raster care face parte din sistemul de filtre menționat anterior. Beat-ul primește raster data, face operații de procesare și sanitization minimale, apoi trimite datele către Elasticsearch. În  implementările convenționale de Beat, datele sunt transmise la intervale periodice de timp către Elasticsearch sau Kibana. Implementarea Beat-ului din aceasta lucrare trimite date către Elasticsearch atunci când primește informații noi de la raster. cBeat (Beater-ul implementat pentru aceasta lucrare) următoarele componente principale:
 \begin{outline}
@@ -507,6 +518,122 @@ Elasticsearch este un motor de căutare bazat pe Apache Lucene. Oferă clienți 
 Kibana este un plugin open-source pentru vizualizare de data, care pune la dispoziție capabilități de vizualizare ale elementelor indexate într-un cluster Elasticsearch. Un utilizator poate construi diferite tipuri de grafice bazate pe datele indexate de Elasticsearch, iar pe baza acestor grafice se pot construi dashboard-uri configurabile. Kibana preia datele indexat de la Elastisearch și le folosește la generarea de grafice și vizualizări relevante pentru utilizator.
 
 Stat Elasticsearch, cat și Kibana sunt hostate pe o mașina (Debian) în cloud pe platforma Scaleway. Mașina are o configurație minimala, stack-ul fiind unul robust și eficient nu are nevoie de multe resurse. Administrarea mașinii se face strict prin SSH, iar interfața web Kibana este expusa spre exterior. Prin intermediul aplicației web se face și configurarea graficelor și dashboard-ului Kibana. Pe mașina host este instalat nginx care redirectează orice acces HTTP către portul Kibana (9300).
+
+\section{Datele extrase}
+Proiectul urmărește extragerea datelor relevante pentru consum de cerneală, media, spațiu de culori, etc.
+
+Majoritatea acestor informații sunt disponibile în sistemul de filtre CUPS menționat mai sus, mai exact in modulul de rasterizare. Aceste informații apar chiar in procesul de rasterizare. 
+
+\bigskip
+
+CUPS determină în momentul dinaintea tipăririi dacă este nevoie sau nu de rasterizare în funcție de mai mulți factori:
+\begin{itemize}
+\item tipul și capabilitățile cozii spre care se trimite job-ul
+	\subitem daca imprimanta suportă sau nu PostScript, etc.
+\item tipul de fișier imprimat
+	\subitem imagine raster, imagine vector, text, PDF, etc.
+\item coada respectivă are sau nu implementare de rasterizor/filtru CUPS
+	\subitem pentru cozile fară filtru implementat in CUPS se folosește rasterizorul CUPS
+\end{itemize}
+
+\bigskip
+
+Odată ce CUPS a determinat folosirea unui filtru, datele despre fișier ajung in modulul respectiv. Modulul extrage pixel data și formează o imagine din pixeli. Imaginea din pixeli respectă constrângerile graficii raster:
+\begin{itemize}
+\item e formată dintr-o matrice de puncte (sau mai multe matrici suprapuse)
+\item are un color space
+\item are rezoluție
+\end{itemize}
+
+În continuare vor fi enumerate si explicate câteva dintre informațiile disponibile in CUPS.
+			
+			\subsubsection{CutMedia}
+CutMedia este o setare pentru imprimarea cu tăiere și poate avea oricare din valorile:
+\begin{itemize}
+\item CUPS\_CUT\_NONE - fară taiere
+\item CUPS\_CUT\_FILE - tăiere după fișier
+\item CUPS\_CUT\_JOB - tăiere după job
+\item CUPS\_CUT\_SET - tăiere după set
+\item CUPS\_CUT\_PAGE - tăiere după pagină
+\end{itemize}
+Opțiunea este relevantă pentru imprimantele cu cutter sau pentru configurațiile de imprimantă și cutter in secvență.
+
+			\subsubsection{Duplex}
+Duplex este setarea care ii spune imprimantei daca tipărirea trebuie efectuată pe ambele fețe ale paginii sau nu. Evident, coada spre care merge acest job trebuie sa suporte această funcționalitate. 
+
+			\subsubsection{Hardware Resolution}
+HWResolution dă rezoluție hardware exprimată pe două dimensiuni.
+
+			\subsubsection{Orientation}
+
+\begin{minipage}{0.3\textwidth}
+\includegraphics[width=30mm]{orientation.png}
+\end{minipage}
+\begin{minipage}{0.6\textwidth}\raggedleft
+Descrie orientarea dorită pentru tipărire. Opțiuni:
+\begin{itemize}
+\item CUPS\_ORIENT\_0 - fară rotire
+\item CUPS\_ORIENT\_90 - rotire în sens trigonometric
+\item CUPS\_ORIENT\_180 - pagina este intoarsă vertical
+\item CUPS\_ORIENT\_270 - rotire în sens orar
+\end{itemize}
+\end{minipage}
+
+
+
+			\subsubsection{PageSize}
+Mărimea paginii pe două dimensiuni.
+
+			\subsubsection{NumCopies}
+Numărul de copii.
+
+			\subsubsection{BitsPerColor}
+Biți per culoare, cunoscută in literatură ca bit depth, este numărul de biți folsiți pentru la indicarea culorii unui singur pixel. Cele mai folosite valori sunt 32 si 24 biți.
+
+			\subsubsection{BitsPerPixel}
+Biți per pixel sau bpp denotă numărul de biți pe un singur pixel. Acesta depinde de numărul de biți pe culoare. Numărul total de combinații este, evident, \begin{math}2^{bpp}\end{math}. Tabelul de mai jos ilustrează câte combinații se pot face cu diferite valori pentru bpp.
+
+\begin{center}
+\begin{tabular}{| c | c |}
+\hline
+biți per culoare & culori \\
+\hline
+1 bpp & 2 culori \\
+2 bpp & 4 culori \\
+4 bpp & 16 culori \\
+6 bpp & 64 culori \\
+8 bpp & 256 culori \\
+10 bpp & 1024 culori \\
+16 bpp & 65536 culori \\
+24 bpp & 16.7 milioane culori \\
+32 bpp & 4294 milioane culori \\
+\hline
+\end{tabular}
+\end{center}
+
+	\subsubsection{ColorSpace}
+
+
+ \begin{figure}[h]
+ \centering
+\begin{minipage}{0.3\textwidth}\raggedright
+Un color space este o organizare specifică a culorilor. În combinație cu profiling-ul fizic al dispozitivelor, permite reproducerea exactă a culorilor și reprezentarea lor cât mai aproape de adevăr. Un model de culoare este un model matematic abstract și descrie felul in care culorile sunt reprezentate in tuple de numere (triplu in cazul RGB sau quadruplu la CMYK). Adesea color space e folosit pentru a desemna un color model. Spre exemplu, multed color space-uri se bazează pe modelul de culoare RGB, nu există color space RGB singular.
+\end{minipage}
+ \begin{minipage}[c]{0.6\textwidth}
+ \centering
+        \includegraphics[width=90mm]{colorspaces.png}
+        \caption{Spații de culoare}
+ \end{minipage}
+ \end{figure}
+
+\bigskip
+\bigskip
+
+Toate acestea, dar și alte informații ajută compania să evalueze mai bine piața. Printre lucrurile de înaltă relevanță pentru companie se numără informații despre cum sunt folosite, concret, imprimantele: ce se tipărește, în ce fel se tipărește, ce color space, ce dimensiuni, câte tăieturi se fac pe un job, ce folding, etc. 
+		\subsection[Elastic Stack]{Elastic Stack\\ {\normalsize Beater - Elasticsearch - Kibana}}
+Elastic Stack este o stiva de aplicații care permite extragerea, procesarea și vizualizarea datelor. În majoritatea cazurilor, acesta este găsit sub numele de ELK Stack (Elasticsearch - Logstash - Kibana). Pentru aceasta teza nu a fost folosit Logstash, fiind înlocuit cu un Elastic Beater ca unealta de colectare a datelor. Un Beat implementează interfața Beater și aduna date spre a le trimite către Kibana sau, în cazul de fata, Elasticsearch.
+
+
 	\section{Build și deployment}
 	Build-ul CUPS presupune compilarea fișierelor C din proiect și linkeditarea corespunzatoare. Apple pune la dispoziție un Makefile pentru build. Build-ul Beat se face prin compilarea fișierelor Go aferente, si el avand un Makefile.
 	Deployment-ul CUPS se face local, pe mașina de unde se urmărește extragerea informațiilor. Acest lucru se realizează prin copiere binarelor în locația corespunzătoare sau prin instalarea unui pachet .deb, .rpm, etc. generat pentru fiecare platforma în parte.
@@ -765,6 +892,11 @@ Scalabilitatea proiectul este, în teorie, mărginita doar de capabilitățile d
 		\subitem testarea întregului sistem
 		\subitem învățarea tehnologiilor, conceptelor, limbajelor de programare aferente realizării fiecarui din punctele anterior menționate
 	\item contribuții de altă natură includ studiul problemei, propunerea si selecția unor soluții fiabile, etc.
+	\item CUPS poate fi compilat pentru diferite arhitecturi, acest lucru crescând portabilitatea sistemului
+	\item Beat-ul nu trebuie să fie pe același sistem cu CUPS, named pipe-ul putând fi inlocuit cu orice mecanism de transmisie de date (HTTP POST, sockets, etc.)
+	\item pornind de la ultimele două puncte, putem spune ca întregul sistem este portabil si flexibil, putând fi instalat pe orice mașină pentru care se poate compila CUPS
+	\item dashboard-ul poate fi accesat de oriunde, atâta timp cât porturile sunt deschise
+	\item datele extrase ajută compania să înțeleagă cum se folosesc imprimantele: câte tăieturi, ce tip de folding, ce tip de culori, câtă cerneală, etc.
 \end{itemize}
 
 \chapter{Glosar de termeni}
@@ -799,6 +931,15 @@ Scalabilitatea proiectul este, în teorie, mărginita doar de capabilitățile d
 \item Upton, Eben (14 March 2018). "Raspberry Pi 3 Model B+ on Sale at USD35". Raspberry Pi Blog. Raspberry Pi .
 \item  "Distributed Application Architecture" (PDF). Sun Microsystem. Archived from the original (PDF) on 6 April 2011. Retrieved 2009-06-16.
 \item Benatallah, B.; Casati, F.; Toumani, F. (2004). "Web service conversation modeling: A cornerstone for e-business automation". IEEE Internet Computing. 8: 46. doi:10.1109/MIC.2004.1260703.
+\item Roch, Benjamin (2004). "Monolithic kernel vs. Microkernel" (PDF). Archived from the original (PDF) on 2006-11-01. Retrieved 2006-10-12.
+\item Silberschatz, Abraham; James L. Peterson; Peter B. Galvin (1991). Operating system concepts. Boston, Massachusetts: Addison-Wesley. p. 696. ISBN 0-201-51379-X.
+\item Ball, Stuart R. (2002) [2002]. Embedded Microprocessor Systems: Real World Designs (first ed.). Elsevier Science. ISBN 0-7506-7534-9.
+\item Deitel, Harvey M. (1984) [1982]. An introduction to operating systems (revisited first ed.). Addison-Wesley. p. 673. ISBN 0-201-14502-2.
+\item Denning, Peter J. (December 1976). "Fault tolerant operating systems". ACM Computing Surveys. 8 (4): 359–389. doi:10.1145/356678.356680. ISSN 0360-0300.
+\item Shaw, Alan C. (1974). The logical design of Operating systems. Prentice-Hall. p. 304. ISBN 0-13-540112-7.
+\item Tanenbaum, Andrew S. (1979). Structured Computer Organization. 
+\item Davidson and Fraser; The Design and Application of a Retargetable Peephole Optimizer; ToPLaS v2(2) 191-202 (April 1980)
+\item Rainer Leupers, Peter Marwedel. "Retargetable Compiler Technology for Embedded Systems"
 \end{itemize}
 \clearpage
 
