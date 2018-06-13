@@ -61,12 +61,12 @@
 
 \graphicspath{ {img/} }
 \title{
-	{Sistem de colectare și analiză a datelor din procesul de tipărire}\\
+	{Colectarea și analiza datelor din procesul de tipărire folosind tehnologii distribuite}\\
 	{\large Lucrare de licență}\\
 	{\large Universitatea Politehnica Timișoara}\\
 	{\includegraphics[width=50mm]{upt_logo.png}}
 }
-\author{Andrei Buruntia \\ andreiburuntia@gmail.com\\[1cm]{ Coordonator: conf. dr. ing. Dan Cosma}}
+\author{Andrei Buruntia \\ andreiburuntia@gmail.com\\[1cm]{ Coordonator: sl. dr. ing. Dan Cosma}}
 \date{20-05-2018}
 \begin{document}
 
@@ -74,12 +74,8 @@
 
 \newpage\null\thispagestyle{empty}\newpage
 
-\chapter*{Abstract}
-În zilele noastre există o multitudine de imprimante și soluții de printing disponibile, fiecare cu interfața și setul ei de funcționalități. Această teză urmărește construirea unei platforme universale care să permită ascunderea imprimantelor după un strat de abstractizare suplimentar, oferind o singură interfață și posibilitatea de a furniza unei companii de printing date relevante sub formă de grafice.
-
-Adresarea problemei anterior menționată necesită depășirea anumitor obstacole, trei dintre care fiind: abstractizarea imprimantei și a funcțiilor ei, integrarea imprimantelor moderne de orice fel, realizarea unor rapoarte închegate și coerente cu date extrase din procesul de printare, care să prezinte relevanță pentru utilizator, ideal permițând utilizatorului sa își creeze propria interfață, dupa nevoile și preferințele lui.
-
-În consecință, lucrarea mea propune o soluție bazată pe \acrshort{cups}, care se ocupă de comunicațiile și controlul imprimantelor și de expunerea lor pe rețea. Acest lucru permite acoperirea unei game largi de imprimante, pastrearea complexității la un nivel relativ redus și accesarea informațiilor lower-level.
+\chapter*{Rezumat}
+Proiectul urmărește extragerea și analiza datelor din procesul de tipărire intr-un mod cât mai puțin invaziv, bazându-se pe sistemul de printing open-source CUPS și folosind stack-ul ELK pentru agregarea, indexarea și vizualizarea datelor. Informațiile relevante sunt extrase din CUPS, trimise spre un endpoint local, acest endpoint trimițându-le către o mașină în cloud spre a fi indexate. Pe baza datelor indexate se construiesc grafice. 
 
 S-a considerat prioritară creerea unei platforme cap-coadă care sa nu restricționeze in vreun fel workflow-ul normal al unui utilizator.
 
@@ -132,7 +128,7 @@ Implementarea soluției trebuie sa respecte următoarele cerințe:
 \end{enumerate}
 
 	\section{Analiza studiului actual în domeniul problemei}
-În prezent, nu există o modalitate non-invazivă de a colecta date de natură non-personală. Există, insă, sistemul CUPS, care dispune de tot ce este nevoie in proiect înafară de capabilitățile de coloctare de date. Există, de asemenea, unelte pentru agregarea si vizualizarea diferitor tipuri de date.
+Din cercetările noastre, nu există o modalitate non-invazivă de a colecta date de natură non-personală despre tipărire. Există, insă, sistemul CUPS, care dispune de tot ce este nevoie in proiect înafară de capabilitățile de coloctare de date. Există, de asemenea, unelte pentru agregarea si vizualizarea diferitor tipuri de date.
 
 \chapter{Fundamente teoretice}
 
@@ -202,6 +198,9 @@ Un bitmap (single-bit raster) corespunde bit cu bit unei imagini afișate pe ecr
 În industria de printing, graficile raster sunt cunoscut ca "contones" (de la "continuous tones"). Opusul contones sunt așa numitele "line works", implementate ca grafici vectorizate în sistemele digitale. Imaginile vectorizate se pot rasteriza și viceversa folosind software. În ambele cazuri se pierde o cantitate mică de informație.
 
 Imaginile raster sunt dependente de rezoluție, deci nu se pot scala in sus fară să se piardă calitatea aparentă. În contrast, imaginile vectorizate se pot scala atât cât pot fi randate de dispozitiv. Uzurile imaginilor rasterizate includ fotografii și alte aplicații in domenii practice, în timp ce imaginile vectorizate se folosesc la design grafic si typesetting.
+
+	\section{CUPS}
+Common Unix Printing System este o platformă de imprimare care se ocupă cu orice ține de imprimante si imprimare, de la administrare și expunerea lor în rețea, la trimiterea de job-uri către cozi (imprimante). În CUPS se pot adăuga imprimante fie din utilitarul din linia de comandă, fie din interfața web. Odată adăugată, o imprimanta devino o 'coadă' (queue) și este expusă pe rețea. Felul în care funcționează CUPS și alte detalii se găsesc la capitolul de implementare.
 
 \chapter{Specificațiile proiectului}
 	\section{Placa de dezvoltare gazdă - Raspberry Pi 3}
@@ -309,6 +308,8 @@ Inițial, am încercat modificare scheduler-ului, mai exact a modulului de loggi
 			\subsubsection{Backend-urile CUPS}
 Backend-urile CUPS sunt folosite pentru a trimite datele către imprimante. CUPS pune la dispoziție multe backend-uri: paralel, serial, USB, cups-pdf, PDF virtual printing, JetDirect, LPD, SMB, etc.
 
+\subsection[Elastic Stack]{Elastic Stack\\ {\normalsize Beater - Elasticsearch - Kibana}}
+Elastic Stack este o stiva de aplicații care permite extragerea, procesarea și vizualizarea datelor. În majoritatea cazurilor, acesta este găsit sub numele de ELK Stack (Elasticsearch - Logstash - Kibana). Pentru aceasta lucrare nu a fost folosit Logstash, fiind înlocuit cu un Elastic Beater ca unealta de colectare a datelor. Un Beat implementează interfața Beater și aduna date spre a le trimite către Kibana sau, în cazul de fata, Elasticsearch.
 		
 			\subsubsection{Beat}
 Beat-urile au fost adăugate recent la stack-ul ELK. Un Beat are responsabilitatea sa colecteze date și sa le trimită spre procesare sau vizualizare. Acesta trebuie sa implementeze în Golang o interfață numita Beater interface, care conține metode de Start, Run și Stop. Aceasta lucrare folosește un Beat pentru a primi date de la raster-ul, raster care face parte din sistemul de filtre menționat anterior. Beat-ul primește raster data, face operații de procesare și sanitization minimale, apoi trimite datele către Elasticsearch. În  implementările convenționale de Beat, datele sunt transmise la intervale periodice de timp către Elasticsearch sau Kibana. Implementarea Beat-ului din aceasta lucrare trimite date către Elasticsearch atunci când primește informații noi de la raster. cBeat (Beater-ul implementat pentru aceasta lucrare) următoarele componente principale:
@@ -630,8 +631,7 @@ Un color space este o organizare specifică a culorilor. În combinație cu prof
 \bigskip
 
 Toate acestea, dar și alte informații ajută compania să evalueze mai bine piața. Printre lucrurile de înaltă relevanță pentru companie se numără informații despre cum sunt folosite, concret, imprimantele: ce se tipărește, în ce fel se tipărește, ce color space, ce dimensiuni, câte tăieturi se fac pe un job, ce folding, etc. 
-		\subsection[Elastic Stack]{Elastic Stack\\ {\normalsize Beater - Elasticsearch - Kibana}}
-Elastic Stack este o stiva de aplicații care permite extragerea, procesarea și vizualizarea datelor. În majoritatea cazurilor, acesta este găsit sub numele de ELK Stack (Elasticsearch - Logstash - Kibana). Pentru aceasta teza nu a fost folosit Logstash, fiind înlocuit cu un Elastic Beater ca unealta de colectare a datelor. Un Beat implementează interfața Beater și aduna date spre a le trimite către Kibana sau, în cazul de fata, Elasticsearch.
+		
 
 
 	\section{Build și deployment}
@@ -660,7 +660,7 @@ Elastic Stack este o stiva de aplicații care permite extragerea, procesarea și
 		{\includegraphics[width=160mm]{dashboard.png}}
 		\caption{exemple de grafice in Kibana; de la dreapta la stanga, de sus in jos: page size, intervale de numere de copii, page count, trend in timp cu numere de copii, pie chart cu numar de culor si trend in timp cu bits per pixel}
 	\end{figure}
-	\subsection{Stubbing}
+	\section{Generare de date}
 	Dat fiind ca datele de tipărire care se pot colecta intr-un timp scurt sunt limitate, s-a decis implementarea unui program care să simuleze tipărirea prin generarea de tichete JSON asemănătoare celor trimise de CUPS, dar cu valori arbitrare pentru fiecare câmp, evident cu constraint-urile aferente. Implementarea a fost făcută in Python3. Programul parcurge enum-urile C ale CUPS menționate anterior si generează pe baza lor un JSON. Acesta este trimis către Beat, spre a fi prelucrat ca orice tichet venit din CUPS. Stub-ul ajuta la colectarea de date și exemplificarea funcționalității dashboard-ului Kibana. Generatorul de tichete este paremetrizat cu constraint-uri si valori rezonabile pentru fiecare camp din JSON.  
 \begin{lstlisting}[caption={cazul general dupa care se populeaza tichetul - Pyton},captionpos=b]
 # CONSTANTS
@@ -767,7 +767,7 @@ def get_populated_class():
 Tichetul este citit de Beat, iar valorile numerice ale câmpurilor sunt traduse în siruri de caractere corespunzatoare din enum-urile CUPS. 
 Această abordare permite inclusiv testarea infrastructurii de transmitere si colectare de date.
 
-	\subsection{Limbajul de interogare Lucene}
+	\section{Limbajul de interogare Lucene}
 O interogare este descompusă sintactic in termeni si operatori. Termenii, la rândul lor, se impart in termeni simplii si fraze. Un termen simplu este un cuvânt, iar o frază este un grup de cuvinte. Mai mulți termeni pot fi combinați folosind operatori pentru a forma o interogare mai complexă. Analizor folosit pentru indexare se va folosi de termeni si fraze.
 
 	\subsubsection{Câmpuri}
@@ -821,7 +821,7 @@ Operatorul implicit pentru conjuncție este SAU. Alți operatori sunt: SI, +, NO
 \end{figure}
 \fi
 
-	\subsection{Limbajul de interogare Elasticsearch}
+	\section{Limbajul de interogare Elasticsearch}
 
 Kibana acceptă atât interogări Lucene, cât si interogări Elasticsearch. Oirce interogare Elasticsearch este scrisă sub forma unui JSON. Câmpul query din obiect desemnează tipul interogării.
  
@@ -848,8 +848,10 @@ Interogarea din listing-ul de mai sus va returna toate conturile cu balance cupr
 
 Implicit, interogările returnează documentul JSON întreg ca parte a câmpului {\textbf{\textit{\_source}}. Dacă se dorete ca documentul să nu fie returnat, putem cere doar anumite câmpuri din obiect. Peste o interogare se pot aplica filtre si agregări. Elasticsearch este un produs atât simplu cât si complex. În general se foloseste împreuna cu un RESTful API.
 
-	\subsection{Platforma Scaleway}
+	\section{Platforma Scaleway}
 Pentru deployment s-a ales platforma Scaleway pe considerente practice si economice. Ea oferă performanțe similare platformelor mainstream la o fracțiune din preț. Scaleway foloseste masini ARM-based. Principalul avantaj față de alte platforme este că pornind de la pachetul de bază, toate includ stocare SSD, cu opțiune pentru NVMe SSD. Scaleway ofera root access complet pe un server dedicat. Performanțele sunt constante si predictibile, spre deosebire de servere virtuale. Platforma oferă flexibilitate pentru plata serviciilor, taxarea fiind făcută dinamic în funcție de timpul folosit. Pe lângă asta, Scaleway este printre singurele companii mari de hosting europene, având servere in Amsterdam si Paris. Latența din Timisoara este de sub 40 ms. Administrarea se face printr-o platforma web.
+\bigskip
+\bigskip
 \begin{figure}[h]
 	\centering
 		{\includegraphics[width=170mm]{scaleway1.png}}
@@ -861,24 +863,28 @@ Pentru deployment s-a ales platforma Scaleway pe considerente practice si econom
 	\caption{Dashboard-ul Scaleway - administrarea unei instanțe de server}
 \end{figure}
 
-\chapter{Rezultate}
-S-a urmărit și realizat crearea unui sistem de tipărire care trimită date către un agregator spre a fi procesate în scopul ghenerarii de analytics. Prin modificările aduse CUPS, workflow-ul normal nu este modificat în vreun fel, nu apare overhead semnificativ, nu se modifica nici o interfața interna sau externa CUPS și extragerea datelor se face într-o maniera eleganta, non-invaziva. Platforma Kibana și facilitățile ei satisfac cerințele legate de agregarea și vizualizarea datelor colectate din CUPS. Informațiile proprietare Océ nu sunt expuse. Folosirea limbajului Go permite extinderea ulterioara a proiectului cu un cost relativ redus și facilitează posibilitatea folosirii pachetelor și a funcțiilor unui limbaj high-level. Modificările la nivelul clienților sunt aproape inexistente, aceștia trebuind doar sa folosească versiunea modificata de CUPS, care, după cum a fost menționat mai sus, nu alterează comportamentul sau aspectul acestuia. Informațiile colectate sunt suta la suta anonime, nefiind trimise date confidențiale legate de utilizator sau mașina acestuia.
+
+\chapter{Concluzii}
+Am urmărit și realizat crearea unui sistem de tipărire care trimită date către un agregator spre a fi procesate în scopul ghenerarii de analytics. Prin modificările aduse CUPS, workflow-ul normal nu este modificat în vreun fel, nu apare overhead semnificativ, nu se modifica nici o interfața interna sau externa CUPS și extragerea datelor se face într-o maniera eleganta, non-invaziva. Platforma Kibana și facilitățile ei satisfac cerințele legate de agregarea și vizualizarea datelor colectate din CUPS. Informațiile proprietare Océ nu sunt expuse. Folosirea limbajului Go permite extinderea ulterioara a proiectului cu un cost relativ redus și facilitează posibilitatea folosirii pachetelor și a funcțiilor unui limbaj high-level. Modificările la nivelul clienților sunt aproape inexistente, aceștia trebuind doar sa folosească versiunea modificata de CUPS, care, după cum a fost menționat mai sus, nu alterează comportamentul sau aspectul acestuia. Informațiile colectate sunt suta la suta anonime, nefiind trimise date confidențiale legate de utilizator sau mașina acestuia.
 
 Folosirea ELK stack și CUPS a scăzut considerabil timpul de lucru, scutind dezvoltatorul de implementarea unor astfel de sisteme.
 
-Scalabilitatea proiectul este, în teorie, mărginita doar de capabilitățile de stocare de date și generarea graficelor. O mașina cu un singur nucleu x64, 1 GB de memorie și conexiune de 100Mb/s s-a descurcat în toate testele efectuate. Un eveniment encodat în JSON are dimensiuni de ordinul sutelor de bytes (de obicei mult sub 1kB). Pe 10 GB de stocare persistenta se pot salva peste \begin{math} 10^7 \end{math} astfel de intrări. Având în vedere disponibilitatea spațiului de stocare în zilele noastre, numărul de mai sus respecta orice cerința rezonabila. 
+Scalabilitatea proiectul este, în teorie, mărginita doar de capabilitățile de stocare de date și generarea graficelor. O mașina cu un singur nucleu x64, 1 GB de memorie și conexiune de 100Mb/s s-a descurcat în toate testele efectuate. Un eveniment encodat în JSON are dimensiuni de ordinul sutelor de bytes (de obicei mult sub 1kB). Pe 10 GB de stocare persistenta se pot salva peste \begin{math} 10^7 \end{math} astfel de intrări. Având în vedere disponibilitatea spațiului de stocare în zilele noastre, numărul de mai sus respecta orice cerința rezonabila. Sistemul poate colecta date de la oricâte Beat-uri de pe oricâte mașini distincte.
 
-\chapter{Concluzii}
+\bigskip
+
+Câteva lucruri de luat in considerare sunt:
+
 \begin{itemize}
-	\item se face evidenta utilitatea folosirii tehnologiilor open-source și clădirea peste sistemelor 'tried and tested'
-	\item se remarca avantajele limbajului Go atunci când se dorește folosirea capabilităților unui limbaj de nivel înalt, dar și păstrarea funcționalităților low-level oferite de limbaje precum C
+	\item este evidentă utilitatea folosirii tehnologiilor open-source și clădirea peste sistemelor 'tried and tested'
+	\item am remarcat avantajele limbajului Go atunci când se dorește folosirea capabilităților unui limbaj de nivel înalt, dar și păstrarea funcționalităților low-level oferite de limbaje precum C
 	\item stack-ul ELK este unul robust, solid si eficient
 	\item uneltele IPC puse la dispoziție de nucleul Linux (named pipe) sunt suficient de robuste și eficiente pentru a fi folosite cu tehnologii moderne
 	\item abundenta dispozitivelor și gradul de dezvoltare rapid a Internetului vor permite colectarea datelor de orice fel
-	\item este de menționat cat de importanta a fost abilitatea CUPS de a comunica și rezolva o multitudine de imprimante, fără ca utilizatorul sa facă vreun efort
-	\item se remarca versatilitatea și fezabilitatea modelului client-server, folosit aici în doua instante cu constringent-uri și parametrii diferiți
+	\item am remarcat importanța abilității CUPS de a comunica și rezolva o multitudine de imprimante, fără ca utilizatorul sa facă vreun efort
+	\item am remarcat versatilitatea și fezabilitatea modelului client-server, folosit aici în doua instante cu constringent-uri și parametrii diferiți
 	\item în zilele noastre, un sistem poate colecta, procesa și transmite cu succes date în unități de timp de ordinul sutelor de microsecunde sau zecilor de milisecunde
-	\item se remarca flexibilitatea unei licențe permisive precum Apache v2.0
+	\item am remarcat flexibilitatea unei licențe permisive precum Apache v2.0
 	\item contribuțiile mele strict tehnice la realizarea acestui proiect includ:
 		\subitem instalarea si configurarea stack-ului ELK in cloud folosind platforma Scaleway
 		\subitem dezvoltarea, configurarea, compilarea si deployment-ul sistemului de operare BuruX bazat pe kernelul Linux
